@@ -1,5 +1,8 @@
 # ESPHome for Home Assistant
-- For 'Home assistant' 
+
+- teleinfo.yaml : Reading electricity meter information for ESPHome
+
+- conso-teleinfo.yaml : Display of instantaneous consumption (electricity meter) on a MAX7219 display (4 modules)
 
   
 # Quick links
