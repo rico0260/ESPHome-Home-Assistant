@@ -1,0 +1,157 @@
+substitutions:
+  my_name: "teleinfo"
+
+esphome:
+  name: ${my_name}
+  platform: ESP8266
+  board: d1_mini
+  project:
+    name: Eric.${my_name}
+    version: "1.0.0"
+
+#debug:
+
+# Enable logging
+logger:
+  baud_rate: 0 #disable logging over uart
+  #level: VERBOSE #verbose sinon la puissance n'est pas transmise !!!!!!!!!
+  level: INFO
+  #level: VERY_VERBOSE
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "UnAutreMotDePass"
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipwr
+  manual_ip:
+    # Set this to the IP of the ESP
+    static_ip: 192.168.x.x
+    # Set this to the IP address of the router. Often ends with .1
+    gateway: 192.168.y.y
+    # The subnet of the network. 255.255.255.0 works for most home networks.
+    subnet: 255.255.255.0
+  power_save_mode: none
+    
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Teleinfo Fallback Hotspot"
+    password: "UnMotDePass"
+
+#captive_portal:
+
+uart:
+  id: uart_bus
+  #tx_pin: GPIO1
+  rx_pin: GPIO3
+  #tx_pin: D6
+  #rx_pin: D7
+  baud_rate: 1200
+  parity: EVEN
+  data_bits: 7
+  stop_bits: 1
+  #rx_buffer_size: 2048
+  
+teleinfo:
+  id: myteleinfo
+  update_interval: 60s
+  historical_mode: true
+  
+binary_sensor:
+  - platform: status
+    name: "Teleinfo Status"
+    
+sensor:
+  - platform: wifi_signal
+    name: "Teleinfo WiFi Signal"
+    #update_interval: 60s
+    #unit_of_measurement: dB
+    #accuracy_decimals: 0
+    #force_update: false
+    #icon: mdi:wifi
+    
+  - platform: teleinfo
+    tag_name: "ADCO"
+    name: "Teleinfo Adresse du compteur"
+    unit_of_measurement: ""
+    icon: mdi:eye
+    teleinfo_id: myteleinfo
+
+  - platform: teleinfo
+    tag_name: "IMAX"
+    name: "Teleinfo Intensité max"
+    unit_of_measurement: "A"
+    icon: mdi:current-ac
+    teleinfo_id: myteleinfo
+    
+  - platform: teleinfo
+    tag_name: "ISOUSC"
+    name: "Teleinfo Intensité souscrite"
+    unit_of_measurement: "A"
+    icon: mdi:current-ac
+    teleinfo_id: myteleinfo
+    
+  - platform: teleinfo
+    tag_name: "IINST"
+    name: "Teleinfo Intensité"
+    unit_of_measurement: "A"
+    icon: mdi:current-ac
+    teleinfo_id: myteleinfo
+    #update_interval: 3s
+    
+  # - platform: teleinfo
+    # tag_name: "HCHC"
+    # name: "Teleinfo hchc"
+    # unit_of_measurement: "Wh"
+    # icon: mdi:flash
+    #teleinfo_id: myteleinfo
+    
+  # - platform: teleinfo
+    # tag_name: "HCHP"
+    # name: "Teleinfo hchp"
+    # unit_of_measurement: "Wh"
+    # icon: mdi:flash
+    #teleinfo_id: myteleinfo
+    
+  - platform: teleinfo
+    tag_name: "PAPP"
+    name: "Teleinfo Puissance"
+    unit_of_measurement: "VA"
+    icon: mdi:flash
+    teleinfo_id: myteleinfo
+    #update_interval: 60s
+    
+  - platform: teleinfo
+    tag_name: "BASE"
+    name: "Teleinfo Index"
+    unit_of_measurement: "kWh"
+    icon: mdi:gauge
+    teleinfo_id: myteleinfo
+    #id: index
+    #update_interval: 3s
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+    
+text_sensor:
+  - platform: wifi_info
+    mac_address:
+      name: "Teleinfo Mac Wifi Address"
+    ip_address:
+      name: "Teleinfo IP Address"
+    ssid:
+      name: "Teleinfo Connected SSID"
+    #bssid:
+      #name: "Teleinfo Connected BSSID"
+
+  - platform: teleinfo
+    tag_name: "OPTARIF"
+    name: "Teleinfo Type d'abonnement"
+    teleinfo_id: myteleinfo
+    icon: mdi:handshake
+    

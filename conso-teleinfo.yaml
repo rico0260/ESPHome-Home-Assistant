@@ -1,0 +1,189 @@
+substitutions:
+  devicename: "conso-teleinfo"
+
+esphome:
+  name: ${devicename}
+  platform: ESP8266
+  board: d1_mini
+  #board: nodemcuv2
+  # Informations sur le projet
+  project:
+    name: Eric.${devicename}
+    version: "1.0.0"
+    
+# Enable logging
+logger:
+  baud_rate: 0 #disable logging over uart
+  level: INFO
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "UnAutreMotDePass"
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipwr
+  manual_ip:
+    # Set this to the IP of the ESP
+    static_ip: 192.168.X.X
+    # Set this to the IP address of the router. Often ends with .1
+    gateway: 192.168.y.y
+    # The subnet of the network. 255.255.255.0 works for most home networks.
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${devicename} Hotspot
+    password: "UnMotDePass"
+
+#captive_portal:
+
+#web_server:
+#  port: 80
+#  auth:
+#    username: !secret webuser
+#    password: !secret webpwr
+    
+time:
+  - platform: homeassistant
+    id: esptime
+
+#---------------------  
+# Configuration spi
+spi:
+  clk_pin: D0
+  mosi_pin: D1
+
+# Affichage sur ecran MAX7219
+display:
+  - platform: max7219digit
+    cs_pin: D2
+    num_chips: 4
+    intensity: 0
+    #scroll_enable: true
+    #scroll_speed: 100ms
+    #update_interval: 100ms
+    #scroll_mode: CONTINUOUS
+    scroll_mode: STOP
+    scroll_dwell: 3s
+    lambda: |- 
+      it.printf(it.get_width(), 0, id(digit_font), TextAlign::TOP_RIGHT, "%sW", id(puissance).state.c_str());
+    
+font:
+  - file: "fonts/pixelmix.ttf"
+    id: digit_font
+    size: 8
+    glyphs:
+    - ' '
+    - '@'
+    - '*'
+    - '!'
+    - '"'
+    - '%'
+    - (
+    - )
+    - +
+    - ','
+    - '-'
+    - .
+    - '0'
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    - ':'
+    - A
+    - B
+    - C
+    - D
+    - E
+    - F
+    - G
+    - H
+    - I
+    - J
+    - K
+    - L
+    - M
+    - N
+    - O
+    - P
+    - Q
+    - R
+    - S
+    - T
+    - U
+    - V
+    - W
+    - X
+    - Y
+    - Z
+    - _
+    - a
+    - b
+    - c
+    - d
+    - e
+    - f
+    - g
+    - h
+    - i
+    - j
+    - k
+    - l
+    - m
+    - n
+    - o
+    - p
+    - q
+    - r
+    - s
+    - t
+    - u
+    - v
+    - w
+    - x
+    - y
+    - z
+    - °
+
+sensor:
+  - platform: wifi_signal
+    name: ${devicename} WiFi Signal Sensor
+    update_interval: 60s
+    id: mywifisignal
+  - platform: adc
+    pin: VCC
+    name: ${devicename} VCC Voltage
+
+binary_sensor:
+  - platform: status
+    name: ${devicename} Status
+      
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ${devicename} IP Address
+      id: ip_address
+    ssid:
+      name: ${devicename} Connected SSID
+    bssid:
+      name: ${devicename} Connected BSSID
+    mac_address:
+      name: ${devicename} Mac Wifi Address
+      
+  - platform: homeassistant
+    entity_id: sensor.teleinfo_intensite # Reception de Home Assistant
+    #name: "Intensite compteur EDF" # Envoi a Home Assistant
+    id: intensite # identifiant pour l'ESP
+  - platform: homeassistant
+    entity_id: sensor.teleinfo_puissance # Reception de Home Assistant
+    id: puissance # identifiant pour l'ESP
+
